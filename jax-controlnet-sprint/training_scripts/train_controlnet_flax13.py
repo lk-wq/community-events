@@ -841,7 +841,7 @@ class FolderData(Dataset):
         choice = random.choice(list_)
 
         ids = self.tokenize_captions(caption)
-        input_ids = tokenizer.pad(
+        input_ids = self.tokenizer.pad(
             {"input_ids": ids}, padding="max_length", max_length=tokenizer.model_max_length, return_tensors="pt"
         ).input_ids
         data['input_ids'] = input_ids

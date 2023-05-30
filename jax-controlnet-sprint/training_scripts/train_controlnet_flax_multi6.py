@@ -1284,12 +1284,12 @@ def main():
     # Create parallel version of the train step
 #     p_train_step = jax.pmap(train_step, "batch", donate_argnums=(0,))
     text_param_spec = jax.tree_util.tree_map(lambda x: partition_shape(x.shape) , text_params)
-    param_spec = jax.tree_util.tree_map(lambda x: partition_shape(x.shape) , params )
+    unet_param_spec = jax.tree_util.tree_map(lambda x: partition_shape(x.shape) , unet_params )
     control_param_spec = jax.tree_util.tree_map(lambda x: partition_shape(x.shape) , controlnet_params )
     vae_spec = jax.tree_util.tree_map(lambda x: partition_shape(x.shape) , vae_params )
 
     text_params = jax.tree_util.tree_map(lambda x: jax.device_put(x ,NamedSharding(mesh , partition_shape(x.shape)) ).astype(jnp.bfloat16), text_params)
-    unet_params = jax.tree_util.tree_map(lambda x: jax.device_put(x ,NamedSharding(mesh , partition_shape(x.shape)) ).astype(jnp.bfloat16), params)
+    unet_params = jax.tree_util.tree_map(lambda x: jax.device_put(x ,NamedSharding(mesh , partition_shape(x.shape)) ).astype(jnp.bfloat16), unet_params)
     controlnet_params = jax.tree_util.tree_map(lambda x: jax.device_put(x ,NamedSharding(mesh , partition_shape(x.shape)) ).astype(jnp.bfloat16), controlnet_params)
     vae_params = jax.tree_util.tree_map(lambda x: jax.device_put(x ,NamedSharding(mesh , partition_shape(x.shape)) ).astype(jnp.bfloat16), vae_params)
 

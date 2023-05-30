@@ -827,13 +827,13 @@ def main():
         transformers.utils.logging.set_verbosity_error()
 
     # wandb init
-    if jax.process_index() == 0 and args.report_to == "wandb":
-        wandb.init(
-            entity=args.wandb_entity,
-            project=args.tracker_project_name,
-            job_type="train",
-            config=args,
-        )
+#     if jax.process_index() == 0 and args.report_to == "wandb":
+#         wandb.init(
+#             entity=args.wandb_entity,
+#             project=args.tracker_project_name,
+#             job_type="train",
+#             config=args,
+#         )
 
     if args.seed is not None:
         set_seed(args.seed)
@@ -1160,18 +1160,18 @@ def main():
     logger.info(f"  Total train batch size (w. parallel & distributed) = {total_train_batch_size}")
     logger.info(f"  Total optimization steps = {args.num_train_epochs * num_update_steps_per_epoch}")
 
-    if jax.process_index() == 0 and args.report_to == "wandb":
-        wandb.define_metric("*", step_metric="train/step")
-        wandb.define_metric("train/step", step_metric="walltime")
-        wandb.config.update(
-            {
-                "num_train_examples": args.max_train_samples if args.streaming else len(train_dataset),
-                "total_train_batch_size": total_train_batch_size,
-                "total_optimization_step": args.num_train_epochs * num_update_steps_per_epoch,
-                "num_devices": jax.device_count(),
-                "controlnet_params": sum(np.prod(x.shape) for x in jax.tree_util.tree_leaves(state.params)),
-            }
-        )
+#     if jax.process_index() == 0 and args.report_to == "wandb":
+#         wandb.define_metric("*", step_metric="train/step")
+#         wandb.define_metric("train/step", step_metric="walltime")
+#         wandb.config.update(
+#             {
+#                 "num_train_examples": args.max_train_samples if args.streaming else len(train_dataset),
+#                 "total_train_batch_size": total_train_batch_size,
+#                 "total_optimization_step": args.num_train_epochs * num_update_steps_per_epoch,
+#                 "num_devices": jax.device_count(),
+#                 "controlnet_params": sum(np.prod(x.shape) for x in jax.tree_util.tree_leaves(state.params)),
+#             }
+#         )
 
     global_step = step0 = 0
     epochs = tqdm(
@@ -1231,18 +1231,18 @@ def main():
                 _ = log_validation(pipeline, pipeline_params, state.params, tokenizer, args, validation_rng, weight_dtype)
 
             if global_step % args.logging_steps == 0 and jax.process_index() == 0:
-                if args.report_to == "wandb":
-                    train_metrics = jax_utils.unreplicate(train_metrics)
-                    train_metrics = jax.tree_util.tree_map(lambda *m: jnp.array(m).mean(), *train_metrics)
-                    wandb.log(
-                        {
-                            "walltime": time.monotonic() - t00,
-                            "train/step": global_step,
-                            "train/epoch": global_step / dataset_length,
-                            "train/steps_per_sec": (global_step - step0) / (time.monotonic() - t0),
-                            **{f"train/{k}": v for k, v in train_metrics.items()},
-                        }
-                    )
+#                 if args.report_to == "wandb":
+#                     train_metrics = jax_utils.unreplicate(train_metrics)
+#                     train_metrics = jax.tree_util.tree_map(lambda *m: jnp.array(m).mean(), *train_metrics)
+#                     wandb.log(
+#                         {
+#                             "walltime": time.monotonic() - t00,
+#                             "train/step": global_step,
+#                             "train/epoch": global_step / dataset_length,
+#                             "train/steps_per_sec": (global_step - step0) / (time.monotonic() - t0),
+#                             **{f"train/{k}": v for k, v in train_metrics.items()},
+#                         }
+#                     )
                 t0, step0 = time.monotonic(), global_step
                 train_metrics = []
             if global_step % args.checkpointing_steps == 0 and jax.process_index() == 0:

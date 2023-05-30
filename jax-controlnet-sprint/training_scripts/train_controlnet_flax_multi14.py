@@ -939,7 +939,7 @@ def main():
         raise NotImplementedError("No tokenizer specified!")
 
     # Get the datasets: you can either provide your own training and evaluation files (see below)
-    total_train_batch_size = args.train_batch_size * jax.local_device_count() * args.gradient_accumulation_steps
+    total_train_batch_size = args.train_batch_size * 1 * args.gradient_accumulation_steps
     train_dataset = FolderData(args.train_data_dir,args.pretrained_model_name_or_path,negative_prompt=args.negative_prompt,section0=args.section0,section1=args.section1,if_=args.img_folder,ip=args.instance_prompt,resolution=args.resolution,resolution2=args.resolution2,drop=args.drop,resize=args.resize,center=args.center_crop)
 
 #     train_dataset = make_train_dataset(args, tokenizer, batch_size=total_train_batch_size)
@@ -1381,15 +1381,6 @@ def main():
                   train_metric["loss"].block_until_ready()
                   jax.profiler.stop_trace()
 
-#               batch = shard(batch)
-#               with jax.profiler.StepTraceAnnotation("train", step_num=global_step):
-#                   state, train_metric, train_rngs = p_train_step(
-#                       state, unet_params, text_encoder_params, vae_params, batch, train_rngs
-#                   )
-#               bi = batch['input_ids']#.astype(jnp.float32)
-#               pixels = batch['pixel_values']#.astype(jnp.float32)
-#               conds = batch['conditioning_pixel_values']
-#                 with jax.default_matmul_precision('float32'):
               controlnet_params,opt_state, train_metric, train_rngs = p_train_step(unet_params,text_params,controlnet_params,vae_params, opt_state,batch,train_rngs)
 
               train_metrics.append(train_metric)

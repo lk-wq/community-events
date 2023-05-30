@@ -126,7 +126,7 @@ def log_validation(pipeline, pipeline_params, controlnet_params, tokenizer, args
             {"validation_image": validation_image, "images": images, "validation_prompt": validation_prompt}
         )
 
-    if args.report_to == "wandb":
+    if False:
         formatted_images = []
         for log in image_logs:
             images = log["images"]
@@ -1366,19 +1366,19 @@ def main():
             params=get_params_to_save(state.params),
         )
 
-        if args.push_to_hub:
-            save_model_card(
-                repo_id,
-                image_logs=image_logs,
-                base_model=args.pretrained_model_name_or_path,
-                repo_folder=args.output_dir,
-            )
-            upload_folder(
-                repo_id=repo_id,
-                folder_path=args.output_dir,
-                commit_message="End of training",
-                ignore_patterns=["step_*", "epoch_*"],
-            )
+#         if args.push_to_hub:
+#             save_model_card(
+#                 repo_id,
+#                 image_logs=image_logs,
+#                 base_model=args.pretrained_model_name_or_path,
+#                 repo_folder=args.output_dir,
+#             )
+#             upload_folder(
+#                 repo_id=repo_id,
+#                 folder_path=args.output_dir,
+#                 commit_message="End of training",
+#                 ignore_patterns=["step_*", "epoch_*"],
+#             )
 
     if args.profile_memory:
         jax.profiler.save_device_memory_profile(os.path.join(args.output_dir, "memory_final.prof"))

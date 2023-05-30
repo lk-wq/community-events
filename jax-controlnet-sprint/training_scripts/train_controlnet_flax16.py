@@ -21,7 +21,7 @@ import random
 import time
 from pathlib import Path
 from torch.utils.data import Dataset
-
+import flax
 import jax
 import jax.numpy as jnp
 import numpy as np

@@ -323,6 +323,12 @@ def parse_args():
         help="instance prompt.",
     )
     parser.add_argument(
+        "--random_flip",
+        action="store_true",
+        help="whether to randomly flip images horizontally",
+    )
+
+    parser.add_argument(
         "--resolution2",
         type=int,
         default=512,

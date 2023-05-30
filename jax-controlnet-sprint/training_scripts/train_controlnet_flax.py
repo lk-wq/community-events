@@ -641,6 +641,152 @@ def make_train_dataset(args, tokenizer, batch_size=None):
 
     return train_dataset
 
+from random import randint, randrange
+
+import random
+from google.cloud import storage
+class FolderData(Dataset):
+    def __init__(self,
+        root_dir,
+        token_dir,
+        caption_file=None,
+        image_transforms=[],
+        ext="jpg",
+        default_caption="",
+        postprocess=None,
+        return_paths=False,
+        negative_prompt="",
+        restart_from=0,
+        section0=0,
+        section1=0,
+        if_=None,
+        ip=None,
+        resolution=768,
+        resolution2=1536,
+        drop=False,
+        resize=False,
+        center=False,
+        ) -> None:
+        """Create a dataset from a folder of images.
+        If you pass in a root directory it will be searched for images
+        ending in ext (ext can be a list)
+        """
+        self.root_dir = root_dir
+        self.default_caption = default_caption
+        self.return_paths = return_paths
+#         l = []
+#         for i in range(9):
+#           with open(root_dir+args.img_folder, "r") as f:
+#               l = f.readlines()
+#               lines = [json.loads(x) for x in lines]
+#               l.extend(lines)
+            # captions = {x["file_name"]: x["text"].strip("\n") for x in lines}
+        # rs = restart_from % len(lines)
+#         with open(root_dir+if_, "r") as f:
+#           l = f.readlines()
+#           lines = [json.loads(x) for x in l]
+#         captions = {x["file_name"]: x["text"].strip("\n") for x in lines}
+
+        import glob
+        print("stuff--------------------->",root_dir+if_+'/*')
+#         self.captions = glob.glob(root_dir+if_+'/*')
+        with open(if_, "r") as f:
+          l = f.readlines()
+          self.captions = [json.loads(x) for x in l]
+
+        import random
+#         random.shuffle(l)
+#         self.captions = lines  #[rs:] + lines[:rs]
+
+        # Only used if there is no caption file
+        # self.paths = []
+        # if isinstance(image_transforms, ListConfig):
+        #     image_transforms = [instantiate_from_config(tt) for tt in image_transforms]
+        image_transforms.extend([transforms.ToTensor(),
+                                 transforms.Lambda(lambda x: rearrange(x * 2. - 1., 'c h w -> h w c'))])
+        image_transforms = transforms.Compose(image_transforms)
+        print("resolution ", resolution)
+#         resolution = 768
+        self.tform0 = transforms.Compose(
+            [
+        transforms.CenterCrop(resolution),
+        transforms.RandomHorizontalFlip(),
+        transforms.ToTensor(),
+        transforms.Normalize([0.5], [0.5]),
+            ]
+        )
+        if resize:
+            self.tform1 = transforms.Compose(
+                [
+            transforms.Resize( resolution2, interpolation=transforms.InterpolationMode.BILINEAR),
+            transforms.RandomCrop(resolution),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            transforms.Normalize([0.5], [0.5]),
+                ]
+            )
+        elif center:
+            self.tform1 = transforms.Compose(
+                [ transforms.CenterCrop(resolution),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            transforms.Normalize([0.5], [0.5]),
+                ]
+            )
+
+        else:
+            self.tform1 = transforms.Compose(
+                [
+    #         transforms.Resize( resolution2, interpolation=transforms.InterpolationMode.BILINEAR),
+            transforms.RandomCrop(resolution),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            transforms.Normalize([0.5], [0.5]),
+                ]
+            )
+
+        self.tokenizer = CLIPTokenizer.from_pretrained(token_dir, subfolder="tokenizer")
+        self.negative_prompt = negative_prompt
+        self.instance_prompt = ip
+        self.drop = drop
+
+    def __len__(self):
+        return len(self.captions)
+
+    def __getitem__(self, index):
+        data = {}
+#         print("fn",self.captions[index])
+        filename = self.captions[index]['file_name']
+        im = Image.open(filename)
+        im = self.process_im(im)
+        data["image"] = im
+
+        filename = self.captions[index]['file_name_condition']
+        im = Image.open(filename)
+        im_cond = self.process_im(im)
+        data['conditioning_pixel_values'] = im_cond
+
+        caption = self.instance_prompt + self.captions[index]['text']
+        list_ = [i for i in range(100)] 
+        choice = random.choice(list_)
+
+        data["txt"] = self.tokenize_captions(caption)
+
+        return data
+    
+    def tokenize_captions(self,captions, is_train=True):
+        inputs = self.tokenizer(captions, max_length=self.tokenizer.model_max_length, padding="do_not_pad", truncation=True)
+        input_ids = inputs.input_ids
+        return input_ids
+    
+    def process_im(self, im):
+        i = random.choice([0,1])
+        if False:
+            im = im.convert("RGB")
+            return self.tform1(im)     
+        else:
+            im = im.convert("RGB")
+            return self.tform1(im)     
 
 def collate_fn(examples):
     pixel_values = torch.stack([example["pixel_values"] for example in examples])
@@ -715,16 +861,21 @@ def main():
 
     # Get the datasets: you can either provide your own training and evaluation files (see below)
     total_train_batch_size = args.train_batch_size * jax.local_device_count() * args.gradient_accumulation_steps
-    train_dataset = make_train_dataset(args, tokenizer, batch_size=total_train_batch_size)
+    train_dataset = FolderData(args.train_data_dir,args.pretrained_model_name_or_path,negative_prompt=args.negative_prompt,section0=args.section0,section1=args.section1,if_=args.img_folder,ip=args.instance_prompt,resolution=args.resolution,resolution2=args.resolution2,drop=args.drop,resize=args.resize,center=args.center_crop)
 
+#     train_dataset = make_train_dataset(args, tokenizer, batch_size=total_train_batch_size)
     train_dataloader = torch.utils.data.DataLoader(
-        train_dataset,
-        shuffle=not args.streaming,
-        collate_fn=collate_fn,
-        batch_size=total_train_batch_size,
-        num_workers=args.dataloader_num_workers,
-        drop_last=True,
+        train_dataset, shuffle=True, collate_fn=collate_fn, batch_size=total_train_batch_size, drop_last=True
     )
+
+#     train_dataloader = torch.utils.data.DataLoader(
+#         train_dataset,
+#         shuffle=not args.streaming,
+#         collate_fn=collate_fn,
+#         batch_size=total_train_batch_size,
+#         num_workers=args.dataloader_num_workers,
+#         drop_last=True,
+#     )
 
     weight_dtype = jnp.float32
     if args.mixed_precision == "fp16":

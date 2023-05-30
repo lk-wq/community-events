@@ -1286,7 +1286,7 @@ def main():
     text_param_spec = jax.tree_util.tree_map(lambda x: partition_shape(x.shape) , text_params)
     unet_param_spec = jax.tree_util.tree_map(lambda x: partition_shape(x.shape) , unet_params )
     control_param_spec = jax.tree_util.tree_map(lambda x: partition_shape(x.shape) , controlnet_params )
-    vae_spec = jax.tree_util.tree_map(lambda x: partition_shape(x.shape) , vae_params )
+    vae_param_spec = jax.tree_util.tree_map(lambda x: partition_shape(x.shape) , vae_params )
 
     text_params = jax.tree_util.tree_map(lambda x: jax.device_put(x ,NamedSharding(mesh , partition_shape(x.shape)) ).astype(jnp.bfloat16), text_params)
     unet_params = jax.tree_util.tree_map(lambda x: jax.device_put(x ,NamedSharding(mesh , partition_shape(x.shape)) ).astype(jnp.bfloat16), unet_params)

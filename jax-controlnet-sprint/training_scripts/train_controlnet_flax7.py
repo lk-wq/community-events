@@ -237,6 +237,13 @@ def parse_args():
         help="Enables compilation cache.",
     )
     parser.add_argument(
+        "--instance_prompt",
+        type=str,
+        default="a beautiful art work by mmdd111",
+        help="instance prompt.",
+    )
+
+    parser.add_argument(
         "--controlnet_from_pt",
         action="store_true",
         help="Load the controlnet model from a PyTorch checkpoint.",

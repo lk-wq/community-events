@@ -55,8 +55,8 @@ from diffusers.utils import check_min_version, is_wandb_available
 LARGE_ENOUGH_NUMBER = 100
 PngImagePlugin.MAX_TEXT_CHUNK = LARGE_ENOUGH_NUMBER * (1024**2)
 
-if is_wandb_available():
-    import wandb
+# if is_wandb_available():
+#     import wandb
 
 # Will error if the minimal version of diffusers is not installed. Remove at your own risks.
 check_min_version("0.16.0.dev0")

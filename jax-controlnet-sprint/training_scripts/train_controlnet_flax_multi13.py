@@ -1121,7 +1121,7 @@ def main():
 #     text_opt_state = optimizer.init(text_params)
 #     text_opt_state_spec = jax.tree_util.tree_map(lambda x : partition_shape(x.shape), text_opt_state )
 
-    state = train_state.TrainState.create(apply_fn=controlnet.__call__, params=controlnet_params, tx=optimizer)
+#     state = train_state.TrainState.create(apply_fn=controlnet.__call__, params=controlnet_params, tx=optimizer)
 
     noise_scheduler, noise_scheduler_state = FlaxDDPMScheduler.from_pretrained(
         args.pretrained_model_name_or_path, subfolder="scheduler"

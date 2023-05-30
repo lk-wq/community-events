@@ -1005,7 +1005,10 @@ def main():
             flip_sin_to_cos=unet.config.flip_sin_to_cos,
             freq_shift=unet.config.freq_shift,
         )
+
         controlnet_params = controlnet.init_weights(rng=rng_params)
+        flat = flax.traverse_util.flatten_dict( text_params )
+        print(flat.keys() ) 
         controlnet_params = unfreeze(controlnet_params)
         for key in [
             "conv_in",
@@ -1043,10 +1046,28 @@ def main():
         weight_decay=args.adam_weight_decay,
     )
 
-    optimizer = optax.chain(
+    optimizer2 = optax.chain(
         optax.clip_by_global_norm(args.max_grad_norm),
         adamw,
     )
+    def flattened_traversal(fn):
+      """Returns function that is called with `(path, param)` instead of pytree."""
+      def mask(tree):
+        flat = flax.traverse_util.flatten_dict(tree)
+        return flax.traverse_util.unflatten_dict(
+            {k: fn(k, v) for k, v in flat.items()})
+      return mask
+    label_fn = flattened_traversal(
+        lambda path, _: 'adam' if check_str(path) else 'none')
+    def check_str(path):
+      for s in path:
+        if 'down_blocks_3':#'up' in s or 'norm' in s or 'text' in s or 'att' in s or 'bias' in s:
+            print("success ---> " , path )
+            return True
+      print("fail ----> ", path )      
+      return False
+    optimizer = optax.multi_transform(
+      {'adam': optimizer2, 'none': optax.set_to_zero()}, label_fn)
 
     state = train_state.TrainState.create(apply_fn=controlnet.__call__, params=controlnet_params, tx=optimizer)
 

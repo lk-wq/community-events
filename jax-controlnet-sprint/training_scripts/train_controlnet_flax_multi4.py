@@ -963,7 +963,7 @@ def main():
         weight_dtype = jnp.bfloat16
 
     # Load models and create wrapper for stable diffusion
-    text_encoder = FlaxCLIPTextModel.from_pretrained(
+    text_encoder, text_params = FlaxCLIPTextModel.from_pretrained(
         args.pretrained_model_name_or_path,
         subfolder="text_encoder",
         dtype=weight_dtype,

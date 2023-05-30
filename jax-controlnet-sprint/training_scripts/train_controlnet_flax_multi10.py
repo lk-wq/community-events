@@ -1390,7 +1390,7 @@ def main():
 #               pixels = batch['pixel_values']#.astype(jnp.float32)
 #               conds = batch['conditioning_pixel_values']
 #                 with jax.default_matmul_precision('float32'):
-              controlnet_params,opt_state, train_metric, train_rngs = p_train_step(unet_params,text_params,controlnet_params,vae_param_spec, opt_state,batch,train_rngs)
+              controlnet_params,opt_state, train_metric, train_rngs = p_train_step(unet_params,text_params,controlnet_params,vae_params, opt_state,batch,train_rngs)
 
               train_metrics.append(train_metric)
 

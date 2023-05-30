@@ -1374,12 +1374,12 @@ def main():
           )
           # train
           for batch in train_dataloader:
-              if args.profile_steps and global_step == 1:
-                  train_metric["loss"].block_until_ready()
-                  jax.profiler.start_trace(args.output_dir)
-              if args.profile_steps and global_step == 1 + args.profile_steps:
-                  train_metric["loss"].block_until_ready()
-                  jax.profiler.stop_trace()
+#               if args.profile_steps and global_step == 1:
+#                   train_metric["loss"].block_until_ready()
+#                   jax.profiler.start_trace(args.output_dir)
+#               if args.profile_steps and global_step == 1 + args.profile_steps:
+#                   train_metric["loss"].block_until_ready()
+#                   jax.profiler.stop_trace()
 
               controlnet_params,opt_state, train_metric, train_rngs = p_train_step(unet_params,text_params,controlnet_params,vae_params, opt_state,batch,train_rngs)
 
@@ -1419,24 +1419,24 @@ def main():
                       params=get_params_to_save(state.params),
                   )
 
-          train_metric = jax_utils.unreplicate(train_metric)
+#           train_metric = jax_utils.unreplicate(train_metric)
           train_step_progress_bar.close()
           epochs.write(f"Epoch... ({epoch + 1}/{args.num_train_epochs} | Loss: {train_metric['loss']})")
 
     # Final validation & store model.
     if jax.process_index() == 0:
-        if args.validation_prompt is not None:
-            if args.profile_validation:
-                jax.profiler.start_trace(args.output_dir)
-            image_logs = log_validation(pipeline, pipeline_params, state.params, tokenizer, args, validation_rng, weight_dtype)
-            if args.profile_validation:
-                jax.profiler.stop_trace()
-        else:
-            image_logs = None
+#         if args.validation_prompt is not None:
+#             if args.profile_validation:
+#                 jax.profiler.start_trace(args.output_dir)
+#             image_logs = log_validation(pipeline, pipeline_params, state.params, tokenizer, args, validation_rng, weight_dtype)
+#             if args.profile_validation:
+#                 jax.profiler.stop_trace()
+#         else:
+#             image_logs = None
 
         controlnet.save_pretrained(
             args.output_dir,
-            params=get_params_to_save(state.params),
+            params=jax.device_get(controlnet_params),
         )
 
 #         if args.push_to_hub:
@@ -1453,9 +1453,9 @@ def main():
 #                 ignore_patterns=["step_*", "epoch_*"],
 #             )
 
-    if args.profile_memory:
-        jax.profiler.save_device_memory_profile(os.path.join(args.output_dir, "memory_final.prof"))
-    logger.info("Finished training.")
+#     if args.profile_memory:
+#         jax.profiler.save_device_memory_profile(os.path.join(args.output_dir, "memory_final.prof"))
+#     logger.info("Finished training.")
 
 
 if __name__ == "__main__":

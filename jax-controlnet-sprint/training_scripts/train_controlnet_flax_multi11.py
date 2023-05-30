@@ -1303,7 +1303,7 @@ def main():
    
     p_train_step = pjit(
         train_step,
-        in_axis_resources=( unet_param_spec,text_param_spec,control_param_spec,vae_param_spec,opt_state_spec,None ),
+        in_axis_resources=( unet_param_spec,text_param_spec,control_param_spec,vae_param_spec,opt_state_spec,None,None ),
         out_axis_resources=(control_param_spec,opt_state_spec,None, None),
         donate_argnums=(2, 4),
     )

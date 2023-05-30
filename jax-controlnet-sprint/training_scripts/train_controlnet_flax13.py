@@ -829,7 +829,7 @@ class FolderData(Dataset):
         filename = self.captions[index]['file_name']
         im = Image.open(filename)
         im = self.process_im(im)
-        data["image"] = im
+        data["pixel_values"] = im
 
         filename = self.captions[index]['file_name']
         im = Image.open(filename)
@@ -840,7 +840,11 @@ class FolderData(Dataset):
         list_ = [i for i in range(100)] 
         choice = random.choice(list_)
 
-        data["txt"] = self.tokenize_captions(caption)
+        ids = self.tokenize_captions(caption)
+        input_ids = tokenizer.pad(
+            {"input_ids": ids}, padding="max_length", max_length=tokenizer.model_max_length, return_tensors="pt"
+        ).input_ids
+        data['input_ids'] = input_ids
 
         return data
     

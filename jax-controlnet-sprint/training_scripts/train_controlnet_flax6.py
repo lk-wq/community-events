@@ -324,15 +324,15 @@ def parse_args():
             " resolution"
         ),
     )
-    parser.add_argument(
-        "--resolution",
-        type=int,
-        default=512,
-        help=(
-            "The resolution for input images, all the images in the train/validation dataset will be resized to this"
-            " resolution"
-        ),
-    )
+#     parser.add_argument(
+#         "--resolution",
+#         type=int,
+#         default=512,
+#         help=(
+#             "The resolution for input images, all the images in the train/validation dataset will be resized to this"
+#             " resolution"
+#         ),
+#     )
     parser.add_argument(
         "--center_crop",
         action="store_true",

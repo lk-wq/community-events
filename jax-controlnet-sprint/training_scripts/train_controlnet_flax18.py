@@ -1007,7 +1007,7 @@ def main():
         )
 
         controlnet_params = controlnet.init_weights(rng=rng_params)
-        flat = flax.traverse_util.flatten_dict( text_params )
+        flat = flax.traverse_util.flatten_dict( controlnet_params )
         print(flat.keys() ) 
         controlnet_params = unfreeze(controlnet_params)
         for key in [

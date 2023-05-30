@@ -1061,7 +1061,7 @@ def main():
         lambda path, _: 'adam' if check_str(path) else 'none')
     def check_str(path):
       for s in path:
-        if 'down_blocks_3':#'up' in s or 'norm' in s or 'text' in s or 'att' in s or 'bias' in s:
+        if 'att' in s:#'up' in s or 'norm' in s or 'text' in s or 'att' in s or 'bias' in s:
             print("success ---> " , path )
             return True
       print("fail ----> ", path )      

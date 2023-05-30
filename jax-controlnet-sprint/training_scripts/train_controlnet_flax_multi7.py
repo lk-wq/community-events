@@ -1085,7 +1085,7 @@ def main():
         if shape[0] % 4 == 0:
           return P("dp")
         else:
-          return P("mp")
+          return P(None)
       if len(shape) == 2:
         if shape[0] % 4 == 0 and shape[1] % 2 == 0 and shape[0] > shape[1]:
           return P("dp","mp")

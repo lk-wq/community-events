@@ -761,7 +761,7 @@ class FolderData(Dataset):
         im = self.process_im(im)
         data["image"] = im
 
-        filename = self.captions[index]['file_name_condition']
+        filename = self.captions[index]['file_name']
         im = Image.open(filename)
         im_cond = self.process_im(im)
         data['conditioning_pixel_values'] = im_cond

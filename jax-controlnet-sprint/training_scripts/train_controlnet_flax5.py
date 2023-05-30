@@ -306,6 +306,51 @@ def parse_args():
             ' "constant", "constant_with_warmup"]'
         ),
     )
+    parser.add_argument("--negative_prompt", type=str, default="", help="Negative prompt for unconditional generation")
+    parser.add_argument("--section0", type=int, default=0, help="section 0")
+    parser.add_argument("--section1", type=int, default=0, help="section 1")
+    parser.add_argument(
+        "--img_folder",
+        type=str,
+        default="images",
+        help="instance prompt.",
+    )
+    parser.add_argument(
+        "--resolution2",
+        type=int,
+        default=512,
+        help=(
+            "The resolution for input images, all the images in the train/validation dataset will be resized to this"
+            " resolution"
+        ),
+    )
+    parser.add_argument(
+        "--resolution",
+        type=int,
+        default=512,
+        help=(
+            "The resolution for input images, all the images in the train/validation dataset will be resized to this"
+            " resolution"
+        ),
+    )
+    parser.add_argument(
+        "--center_crop",
+        action="store_true",
+        help="Whether to center crop images before resizing to resolution (if not set, random crop will be used)",
+    )
+    parser.add_argument(
+        "--drop",
+        action="store_true",
+        help="Whether to prompt drop",
+    )
+    parser.add_argument(
+        "--resize",
+        action="store_true",
+        help="Whether to prompt drop",
+    )
+
+
+
     parser.add_argument(
         "--snr_gamma",
         type=float,

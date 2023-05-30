@@ -1129,7 +1129,7 @@ def main():
 
     # Initialize our training
     validation_rng, train_rngs = jax.random.split(rng)
-    train_rngs = jax.random.split(train_rngs, jax.local_device_count())
+#     train_rngs = jax.random.split(train_rngs, jax.local_device_count())
 
     def compute_snr(timesteps):
         """

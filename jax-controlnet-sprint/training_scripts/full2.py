@@ -1164,7 +1164,7 @@ def main():
         snr = (alpha / sigma) ** 2
         return snr
 
-    def train_step(unet_params,text_params,controlnet_params,vae_params,unet_opt_state, opt_state,batch,train_rng):
+    def train_step(unet_params,text_params,controlnet_params,vae_params,unet_opt_state, text_opt_state,opt_state,batch,train_rng):
         # reshape batch, add grad_step_dim if gradient_accumulation_steps > 1
         if args.gradient_accumulation_steps > 1:
             grad_steps = args.gradient_accumulation_steps
@@ -1412,7 +1412,7 @@ def main():
 #                   train_metric["loss"].block_until_ready()
 #                   jax.profiler.stop_trace()
 
-              unet_params,text_params,controlnet_params,unet_opt_state,text_opt_state, opt_state,train_metric, train_rngs = p_train_step(unet_params,text_params,controlnet_params,vae_params, unet_opt_state,opt_state,batch,train_rngs)
+              unet_params,text_params,controlnet_params,unet_opt_state,text_opt_state, opt_state,train_metric, train_rngs = p_train_step(unet_params,text_params,controlnet_params,vae_params, unet_opt_state, text_opt_state, opt_state,batch,train_rngs)
 
               train_metrics.append(train_metric)
 

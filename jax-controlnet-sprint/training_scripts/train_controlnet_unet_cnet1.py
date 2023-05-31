@@ -1124,7 +1124,7 @@ def main():
         if shape[-1] % 2 == 0 and shape[-2] % 2 == 0:
           return P(None,None,"mp",None)
         
-      print("fail")
+      print("fail",shape)
       return P()
 
     from jax.experimental import PartitionSpec as P 
@@ -1283,11 +1283,11 @@ def main():
 #         grad = jax.lax.pmean(grad, "batch")
 
 #         new_state = state.apply_gradients(grads=grad)
-        newcontrolnet_updates, new_opt_state = optimizer.update(grad['controlnet_params'], opt_state, params['controlnet_params'])
-        newcontrolnet_params = optax.apply_updates(params['controlnet_params'], newcontrolnet_updates)
+        controlnet_updates, new_opt_state = optimizer.update(grad['controlnet_params'], opt_state, params['controlnet_params'])
+        newcontrolnet_params = optax.apply_updates(params['controlnet_params'], controlnet_updates)
 
-        newunet_updates, new_unetopt_state = optimizer.update(grad['unet_params'], opt_state, params['unet_params'])
-        newunet_params = optax.apply_updates(params['unet_params'], unet_updates)
+        unet_updates, new_unetopt_state = optimizer2.update(grad['unet'], unet_opt_state, params['unet'])
+        newunet_params = optax.apply_updates(params['unet'], unet_updates)
 
         metrics = {"loss": loss}
 #         metrics = jax.lax.pmean(metrics, axis_name="batch")

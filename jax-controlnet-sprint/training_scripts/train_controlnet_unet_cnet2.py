@@ -1297,7 +1297,7 @@ def main():
 
         metrics["l2_grads"] = l2(jax.tree_util.tree_leaves(grad))
 
-        return newunet_updates,newcontrolnet_params,new_unetopt_state,new_opt_state, metrics, new_train_rng
+        return newunet_params,newcontrolnet_params,new_unetopt_state,new_opt_state, metrics, new_train_rng
 
     # Create parallel version of the train step
 #     p_train_step = jax.pmap(train_step, "batch", donate_argnums=(0,))

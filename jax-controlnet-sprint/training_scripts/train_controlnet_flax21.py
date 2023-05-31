@@ -1046,7 +1046,7 @@ def main():
         weight_decay=args.adam_weight_decay,
     )
 
-    optimizer2 = optax.chain(
+    optimizer = optax.chain(
         optax.clip_by_global_norm(args.max_grad_norm),
         adamw,
     )
@@ -1066,8 +1066,8 @@ def main():
             return True
       print("fail ----> ", path )      
       return False
-    optimizer = optax.multi_transform(
-      {'adam': optimizer2, 'none': optax.set_to_zero()}, label_fn)
+#     optimizer = optax.multi_transform(
+#       {'adam': optimizer2, 'none': optax.set_to_zero()}, label_fn)
 
     state = train_state.TrainState.create(apply_fn=controlnet.__call__, params=controlnet_params, tx=optimizer)
 

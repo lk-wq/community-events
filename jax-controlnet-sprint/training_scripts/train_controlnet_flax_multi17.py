@@ -41,6 +41,7 @@ from torchvision import transforms
 from tqdm.auto import tqdm
 from transformers import CLIPTokenizer, FlaxCLIPTextModel, set_seed
 from jax.experimental import mesh_utils
+from controlnet_aux import PidiNetDetector, HEDdetector
 
 from diffusers import (
     FlaxAutoencoderKL,
@@ -789,6 +790,14 @@ class FolderData(Dataset):
         transforms.Normalize([0.5], [0.5]),
             ]
         )
+        self.conditioning_image_transforms = transforms.Compose(
+        [
+            transforms.Resize(resolution, interpolation=transforms.InterpolationMode.BILINEAR),
+            transforms.CenterCrop(resolution),
+            transforms.ToTensor(),
+        ]
+        )
+
         if resize:
             self.tform1 = transforms.Compose(
                 [
@@ -823,6 +832,7 @@ class FolderData(Dataset):
         self.negative_prompt = negative_prompt
         self.instance_prompt = ip
         self.drop = drop
+        self.processor = HEDdetector.from_pretrained('lllyasviel/Annotators')
 
     def __len__(self):
         return len(self.captions)
@@ -831,14 +841,14 @@ class FolderData(Dataset):
         data = {}
 #         print("fn",self.captions[index])
         filename = self.captions[index]['file_name']
-        im = Image.open(filename)
-        im = self.process_im(im)
+        im2 = Image.open(filename)
+        im = self.process_im(im2)
         data["pixel_values"] = im
 
-        filename = self.captions[index]['file_name']
-        im = Image.open(filename)
-        im_cond = self.process_im(im)
-        data['conditioning_pixel_values'] = im_cond
+        control_image = processor(im2, scribble=True)
+
+#         im_cond = self.process_im(im)
+        data['conditioning_pixel_values'] = self.conditioning_image_transforms(control_image)
 
         caption = self.instance_prompt + self.captions[index]['text']
         list_ = [i for i in range(100)] 

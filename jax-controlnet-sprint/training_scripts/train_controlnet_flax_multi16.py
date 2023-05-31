@@ -1391,12 +1391,12 @@ def main():
               if global_step >= args.max_train_steps:
                   break
 
-              if (
-                  args.validation_prompt is not None
-                  and global_step % args.validation_steps == 0
-                  and jax.process_index() == 0
-              ):
-                  _ = log_validation(pipeline, pipeline_params, state.params, tokenizer, args, validation_rng, weight_dtype)
+#               if (
+#                   args.validation_prompt is not None
+#                   and global_step % args.validation_steps == 0
+#                   and jax.process_index() == 0
+#               ):
+#                   _ = log_validation(pipeline, pipeline_params, state.params, tokenizer, args, validation_rng, weight_dtype)
 
               if global_step % args.logging_steps == 0 and jax.process_index() == 0:
   #                 if args.report_to == "wandb":

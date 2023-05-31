@@ -832,7 +832,7 @@ class FolderData(Dataset):
         self.negative_prompt = negative_prompt
         self.instance_prompt = ip
         self.drop = drop
-        self.processor = HEDdetector.from_pretrained('lllyasviel/Annotators')
+        self.processor = PidiNetDetector.from_pretrained('lllyasviel/Annotators')
 
     def __len__(self):
         return len(self.captions)
@@ -845,7 +845,7 @@ class FolderData(Dataset):
         im = self.process_im(im2)
         data["pixel_values"] = im
 
-        control_image = processor(im2, scribble=True)
+        control_image = self.processor(im2, safe=True)
 
 #         im_cond = self.process_im(im)
         data['conditioning_pixel_values'] = self.conditioning_image_transforms(control_image)

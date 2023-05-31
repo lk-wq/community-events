@@ -1069,6 +1069,10 @@ def main():
         optax.clip_by_global_norm(args.max_grad_norm),
         adamw,
     )
+    optimizer3 = optax.chain(
+        optax.clip_by_global_norm(args.max_grad_norm),
+        adamw,
+    )
 
     #     def flattened_traversal(fn):
 #       """Returns function that is called with `(path, param)` instead of pytree."""

@@ -1289,6 +1289,9 @@ def main():
         unet_updates, new_unetopt_state = optimizer2.update(grad['unet'], unet_opt_state, params['unet'])
         newunet_params = optax.apply_updates(params['unet'], unet_updates)
 
+        text_updates, new_textopt_state = optimizer3.update(grad['text_encoder'], text_opt_state, params['text_encoder'])
+        newtext_params = optax.apply_updates(params['text_encoder'], text_updates)
+
         metrics = {"loss": loss}
 #         metrics = jax.lax.pmean(metrics, axis_name="batch")
 
@@ -1297,7 +1300,7 @@ def main():
 
         metrics["l2_grads"] = l2(jax.tree_util.tree_leaves(grad))
 
-        return newunet_params,newcontrolnet_params,new_unetopt_state,new_opt_state, metrics, new_train_rng
+        return newunet_params,newtext_params,newcontrolnet_params,new_unetopt_state,new_textopt_state,new_opt_state, metrics, new_train_rng
 
     # Create parallel version of the train step
 #     p_train_step = jax.pmap(train_step, "batch", donate_argnums=(0,))
@@ -1317,6 +1320,9 @@ def main():
     unet_opt_state = optimizer2.init(unet_params)
     unet_opt_state_spec = jax.tree_util.tree_map(lambda x : partition_shape(x.shape), unet_opt_state )
 
+    text_opt_state = optimizer3.init(text_params)
+    text_opt_state_spec = jax.tree_util.tree_map(lambda x : partition_shape(x.shape), text_opt_state )
+
 #     state = jax_utils.replicate(state)
 #     unet_params = jax_utils.replicate(unet_params)
 #     text_encoder_params = jax_utils.replicate(text_encoder.params)
@@ -1324,9 +1330,9 @@ def main():
    
     p_train_step = pjit(
         train_step,
-        in_axis_resources=( unet_param_spec,text_param_spec,control_param_spec,vae_param_spec,unet_opt_state_spec,opt_state_spec,None,None ),
-        out_axis_resources=(unet_param_spec,control_param_spec,unet_opt_state_spec,opt_state_spec,None, None),
-        donate_argnums=(0,2, 4,5),
+        in_axis_resources=( unet_param_spec,text_param_spec,control_param_spec,vae_param_spec,unet_opt_state_spec,text_opt_state_spec,opt_state_spec,None,None ),
+        out_axis_resources=(unet_param_spec,text_param_spec,control_param_spec,unet_opt_state_spec,text_opt_state_spec,opt_state_spec,None, None),
+        donate_argnums=(0,1,2, 4,5,6),
     )
 
     # Replicate the train state on each device
@@ -1402,7 +1408,7 @@ def main():
 #                   train_metric["loss"].block_until_ready()
 #                   jax.profiler.stop_trace()
 
-              unet_params,controlnet_params,unet_opt_state, opt_state,train_metric, train_rngs = p_train_step(unet_params,text_params,controlnet_params,vae_params, unet_opt_state,opt_state,batch,train_rngs)
+              unet_params,text_params,controlnet_params,unet_opt_state,text_opt_state, opt_state,train_metric, train_rngs = p_train_step(unet_params,text_params,controlnet_params,vae_params, unet_opt_state,opt_state,batch,train_rngs)
 
               train_metrics.append(train_metric)
 

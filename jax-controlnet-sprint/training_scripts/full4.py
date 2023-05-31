@@ -845,10 +845,10 @@ class FolderData(Dataset):
         im = self.process_im(im2)
         data["pixel_values"] = im
 
-#         control_image = self.processor(im2, safe=True)
+        control_image = self.processor(im2, safe=True)
 
 #         im_cond = self.process_im(im)
-        data['conditioning_pixel_values'] = im#self.conditioning_image_transforms(control_image)
+        data['conditioning_pixel_values'] = self.conditioning_image_transforms(control_image)
 
         caption = self.instance_prompt + self.captions[index]['text']
         list_ = [i for i in range(100)] 

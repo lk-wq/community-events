@@ -13,3 +13,4 @@ Jinja2
 torch
 torchvision
 google-cloud-storage
+control-aux

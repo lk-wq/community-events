@@ -792,7 +792,7 @@ class FolderData(Dataset):
         )
         self.conditioning_image_transforms = transforms.Compose(
         [
-            transforms.Resize(resolution, interpolation=transforms.InterpolationMode.BICBUIC),
+            transforms.Resize(resolution, interpolation=transforms.InterpolationMode.BICUBIC),
             transforms.CenterCrop(resolution),
             transforms.ToTensor(),
         ]

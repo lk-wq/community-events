@@ -1083,17 +1083,26 @@ def main():
         weight_decay=args.adam_weight_decay,
     )
 
-    optimizer = optax.chain(
+    optimizerp = optax.chain(
         optax.clip_by_global_norm(args.max_grad_norm),
         adamw,
     )
-    optimizer2 = optax.chain(
+    optimizer2p = optax.chain(
         optax.clip_by_global_norm(args.max_grad_norm),
         adamw,
     )
-    optimizer3 = optax.chain(
+    optimizer3p = optax.chain(
         optax.clip_by_global_norm(args.max_grad_norm),
         adamw,
+    )
+    optimizer = optax.MultiSteps(
+        optimizerp, args.gradient_accumulation_steps
+    )
+    optimizer2 = optax.MultiSteps(
+        optimizer2p, args.gradient_accumulation_steps
+    )
+    optimizer3 = optax.MultiSteps(
+        optimizer3p, args.gradient_accumulation_steps
     )
 
     #     def flattened_traversal(fn):
@@ -1188,9 +1197,9 @@ def main():
 
     def train_step(unet_params,text_params,controlnet_params,vae_params,unet_opt_state, text_opt_state,opt_state,batch,train_rng):
         # reshape batch, add grad_step_dim if gradient_accumulation_steps > 1
-        if args.gradient_accumulation_steps > 1:
-            grad_steps = args.gradient_accumulation_steps
-            batch = jax.tree_map(lambda x: x.reshape((grad_steps, x.shape[0] // grad_steps) + x.shape[1:]), batch)
+#         if args.gradient_accumulation_steps > 1:
+#             grad_steps = args.gradient_accumulation_steps
+#             batch = jax.tree_map(lambda x: x.reshape((grad_steps, x.shape[0] // grad_steps) + x.shape[1:]), batch)
         params = {"text_encoder": text_params, "unet": unet_params,"controlnet_params": controlnet_params}
 
         def compute_loss(params, minibatch, sample_rng):
@@ -1283,7 +1292,7 @@ def main():
             loss, grad = grad_fn(params, minibatch, sample_rng)
             return loss, grad, train_rng
 
-        if args.gradient_accumulation_steps == 1:
+        if True:
             loss, grad, new_train_rng = loss_and_grad(None, train_rng)
         else:
             init_loss_grad_rng = (

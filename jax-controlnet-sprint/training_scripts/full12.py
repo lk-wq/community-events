@@ -1142,10 +1142,13 @@ def main():
         if shape[0] % 2 == 0 and shape[1] % 4 == 0:
           return P("mp","dp")
         if shape[0] % 4 == 0:# and shape[1] % 2 == 0:
+          print('4',shape)
           return P("dp",None)
         if shape[1] % 4 == 0:# and shape[1] % 2 == 0:
+          print('4',shape)
           return P(None,"dp")
         if shape[0] % 2 == 0 and shape[1] % 2 == 0:
+          print('2',shape)
           return P("mp",None)
       if len(shape) == 4:
         if shape[-2] % 4 == 0 and shape[-1] % 2 == 0:
@@ -1153,10 +1156,13 @@ def main():
         if shape[-2] % 2 == 0 and shape[-1] % 4 == 0:
           return P(None,None,"mp","dp")
         if shape[-2] % 4 == 0:# and shape[1] % 2 == 0:
+          print('4',shape)
           return P(None,None,"dp",None)
         if shape[-1] % 4 == 0:# and shape[1] % 2 == 0:
+          print('4',shape)
           return P(None,None,None,"dp")
         if shape[-1] % 2 == 0 and shape[-2] % 2 == 0:
+          print('2',shape)
           return P(None,None,"mp",None)
         
       print("fail",shape)
@@ -1412,8 +1418,8 @@ def main():
         position=0,
         disable=jax.process_index() > 0,
     )
-    if args.profile_memory:
-        jax.profiler.save_device_memory_profile(os.path.join(args.output_dir, "memory_initial.prof"))
+#     if args.profile_memory:
+#         jax.profiler.save_device_memory_profile(os.path.join(args.output_dir, "memory_initial.prof"))
     t00 = t0 = time.monotonic()
     with Mesh(mesh_devices, ("dp","mp")):
       for epoch in epochs:
@@ -1475,11 +1481,11 @@ def main():
   #                     )
                   t0, step0 = time.monotonic(), global_step
                   train_metrics = []
-              if global_step % args.checkpointing_steps == 0 and jax.process_index() == 0:
-                  controlnet.save_pretrained(
-                      f"{args.output_dir}/{global_step}",
-                      params=get_params_to_save(state.params),
-                  )
+#               if global_step % args.checkpointing_steps == 0 and jax.process_index() == 0:
+#                   controlnet.save_pretrained(
+#                       f"{args.output_dir}/{global_step}",
+#                       params=get_params_to_save(state.params),
+#                   )
 
 #           train_metric = jax_utils.unreplicate(train_metric)
           train_step_progress_bar.close()

@@ -792,7 +792,7 @@ class FolderData(Dataset):
         )
         self.conditioning_image_transforms = transforms.Compose(
         [
-            transforms.Resize(resolution, interpolation=transforms.InterpolationMode.BILINEAR),
+            transforms.Resize(resolution, interpolation=transforms.InterpolationMode.BICBUIC),
             transforms.CenterCrop(resolution),
             transforms.ToTensor(),
         ]
@@ -801,7 +801,7 @@ class FolderData(Dataset):
         if resize:
             self.tform1 = transforms.Compose(
                 [
-            transforms.Resize( resolution2, interpolation=transforms.InterpolationMode.BILINEAR),
+            transforms.Resize( resolution2, interpolation=transforms.InterpolationMode.BICUBIC),
             transforms.RandomCrop(resolution),
             transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
@@ -833,6 +833,14 @@ class FolderData(Dataset):
         self.instance_prompt = ip
         self.drop = drop
         self.processor = PidiNetDetector.from_pretrained('lllyasviel/Annotators')
+        self.tform1 = transforms.Compose(
+                [
+            transforms.RandomCrop(resolution),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            transforms.Normalize([0.5], [0.5]),
+                ]
+        )
 
     def __len__(self):
         return len(self.captions)
@@ -842,7 +850,13 @@ class FolderData(Dataset):
 #         print("fn",self.captions[index])
         filename = self.captions[index]['file_name']
         im2 = Image.open(filename)
-        im = self.process_im(im2)
+        mins = min(im2.size[0] , im2.size[1]) 
+        if mins < 512:
+            
+            im = self.process_im(im2)
+        else:
+            im = self.process_imlarge(im2)
+            
         data["pixel_values"] = im
 
         control_image = self.processor(im2, safe=True)

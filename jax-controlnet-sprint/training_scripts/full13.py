@@ -1058,16 +1058,16 @@ def main():
         ]:
             controlnet_params[key] = unet_params[key]
 
-    pipeline, pipeline_params = FlaxStableDiffusionControlNetPipeline.from_pretrained(
-        args.pretrained_model_name_or_path,
-        tokenizer=tokenizer,
-        controlnet=controlnet,
-        safety_checker=None,
-        dtype=weight_dtype,
-        revision=args.revision,
-        from_pt=args.from_pt,
-    )
-    pipeline_params = jax_utils.replicate(pipeline_params)
+#     pipeline, pipeline_params = FlaxStableDiffusionControlNetPipeline.from_pretrained(
+#         args.pretrained_model_name_or_path,
+#         tokenizer=tokenizer,
+#         controlnet=controlnet,
+#         safety_checker=None,
+#         dtype=weight_dtype,
+#         revision=args.revision,
+#         from_pt=args.from_pt,
+#     )
+#     pipeline_params = jax_utils.replicate(pipeline_params)
 
     # Optimization
     if args.scale_lr:
@@ -1172,7 +1172,6 @@ def main():
     from jax.sharding import NamedSharding
 
     mesh = Mesh(mesh_devices , axis_names=('dp','mp'))
-
     
 #     text_opt_state = optimizer.init(text_params)
 #     text_opt_state_spec = jax.tree_util.tree_map(lambda x : partition_shape(x.shape), text_opt_state )

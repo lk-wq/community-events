@@ -833,7 +833,7 @@ class FolderData(Dataset):
         self.instance_prompt = ip
         self.drop = drop
         self.processor = PidiNetDetector.from_pretrained('lllyasviel/Annotators')
-        self.tform1 = transforms.Compose(
+        self.tformlarge = transforms.Compose(
                 [
             transforms.RandomCrop(resolution),
             transforms.RandomHorizontalFlip(),
@@ -852,7 +852,7 @@ class FolderData(Dataset):
         im2 = Image.open(filename)
         mins = min(im2.size[0] , im2.size[1]) 
         if mins < 512:
-            
+      
             im = self.process_im(im2)
         else:
             im = self.process_imlarge(im2)
@@ -886,6 +886,14 @@ class FolderData(Dataset):
         if False:
             im = im.convert("RGB")
             return self.tform1(im)     
+        else:
+            im = im.convert("RGB")
+            return self.tform1(im)     
+    def process_imlarge(self, im):
+        i = random.choice([0,1])
+        if False:
+            im = im.convert("RGB")
+            return self.tformlarge(im)     
         else:
             im = im.convert("RGB")
             return self.tform1(im)     

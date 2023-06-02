@@ -41,7 +41,7 @@ from torchvision import transforms
 from tqdm.auto import tqdm
 from transformers import CLIPTokenizer, FlaxCLIPTextModel, set_seed
 from jax.experimental import mesh_utils
-from controlnet_aux import PidiNetDetector, HEDdetector
+from controlnet_aux import LineartDetector, PidiNetDetector, HEDdetector
 
 from diffusers import (
     FlaxAutoencoderKL,

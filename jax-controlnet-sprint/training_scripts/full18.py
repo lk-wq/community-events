@@ -43,6 +43,8 @@ from transformers import CLIPTokenizer, FlaxCLIPTextModel, set_seed
 from jax.experimental import mesh_utils
 from controlnet_aux import LineartDetector, PidiNetDetector, HEDdetector
 
+import PIL
+
 from diffusers import (
     FlaxAutoencoderKL,
     FlaxControlNetModel,

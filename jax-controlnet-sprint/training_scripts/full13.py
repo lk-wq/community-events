@@ -780,6 +780,7 @@ class FolderData(Dataset):
         image_transforms.extend([transforms.ToTensor(),
                                  transforms.Lambda(lambda x: rearrange(x * 2. - 1., 'c h w -> h w c'))])
         image_transforms = transforms.Compose(image_transforms)
+        self.resolution = resolution
         print("resolution ", resolution)
 #         resolution = 768
         self.tform0 = transforms.Compose(
@@ -832,7 +833,11 @@ class FolderData(Dataset):
         self.negative_prompt = negative_prompt
         self.instance_prompt = ip
         self.drop = drop
-        self.processor = PidiNetDetector.from_pretrained('lllyasviel/Annotators')
+#         self.processor = PidiNetDetector.from_pretrained('lllyasviel/Annotators')
+        self.processor_hed = HEDdetector.from_pretrained('lllyasviel/Annotators')
+        self.processor_pidi = PidiNetDetector.from_pretrained('lllyasviel/Annotators')
+        self.processor_linear = LineartDetector.from_pretrained('lllyasviel/Annotators')
+
         self.tformlarge = transforms.Compose(
                 [
             transforms.RandomCrop(resolution),
@@ -849,17 +854,25 @@ class FolderData(Dataset):
         data = {}
 #         print("fn",self.captions[index])
         filename = self.captions[index]['file_name']
-        im2 = Image.open(filename)
+        im = Image.open(filename)
         mins = min(im2.size[0] , im2.size[1]) 
+        
         if mins < 512:
-      
-            im = self.process_im(im2)
+            im2 = self.process_im(im)
         else:
-            im = self.process_imlarge(im2)
-            
-        data["pixel_values"] = im
+#             im = Image.open(filename)
+            width, height = im.size
+            left = randrange(0,width - self.resolution)
+            top = randrange(0,height - self.resolution)
+            right = left + self.resolution
+            bottom = top + self.resolution
+            im = im.crop((left, top, right, bottom))
 
-        control_image = self.processor(im2, safe=True)
+            im2 = self.process_im(im)
+            
+        data["pixel_values"] = im2
+
+        control_image = self.process_im_cond(im, safe=True)
 
 #         im_cond = self.process_im(im)
         data['conditioning_pixel_values'] = self.conditioning_image_transforms(control_image)
@@ -889,14 +902,70 @@ class FolderData(Dataset):
         else:
             im = im.convert("RGB")
             return self.tform1(im)     
-    def process_imlarge(self, im):
-        i = random.choice([0,1])
-        if False:
-            im = im.convert("RGB")
-            return self.tformlarge(im)     
+    def process_im_cond(self, image):
+        mins = min(image.size[0] , image.size[1]) 
+        
+        if mins < 512:
+            image = image.resize((512,512), resample=PIL.Image.BICUBIC)
+
+            
+        listk = [i for i in range(100)]
+
+        r = random.choice(listk)
+        scribble = random.choice([True,False])
+
+        if r < 20:
+          image2 = np.array(image)
+
+          low_threshold = 100
+          high_threshold = 200
+
+          image2 = cv2.Canny(image2, low_threshold, high_threshold)
+          image2 = image2[:, :, None]
+          image2 = np.concatenate([image2, image2, image2], axis=2)
+          control_image = Image.fromarray(image2)
+        elif r < 43:
+          control_image = processor_hed(image, safe=True,scribble=scribble)
+
+        elif r < 66:
+          control_image = processor_pidi(image, safe=True,scribble=scribble)
+
         else:
-            im = im.convert("RGB")
-            return self.tform1(im)     
+          control_image = processor_linear(image)
+
+        from PIL import Image
+
+        img = control_image.convert("RGBA")
+
+        pixdata = img.load()
+
+        width, height = img.size
+        for y in range(height):
+            for x in range(width):
+                if pixdata[x, y][0] < 50:# == (0, 0, 0, 255):
+                    pixdata[x, y] = (255, 255, 255, 0)
+
+                else:
+                    pixdata[x, y] = (0, 0, 0, 255 ) 
+
+        img2 = image
+
+        scales = [16 , 32 , 64]
+        scale = random.choice(scales)
+        img2 = img2.resize((512,512))
+        imgSmall = img2.resize((scale,scale), resample=PIL.Image.BICUBIC)
+
+        result = imgSmall.resize(img.size, Image.NEAREST)
+
+        result2 = result.convert("RGBA")
+
+        background = result2
+        background.paste(img,(0,0),img)
+        background 
+        
+        im = background.convert("RGB")
+        im.save('ok.png')
+        return self.tformlarge(im)     
 
 def collate_fn(examples):
     pixel_values = torch.stack([example["pixel_values"] for example in examples])

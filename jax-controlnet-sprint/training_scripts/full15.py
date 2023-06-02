@@ -855,7 +855,7 @@ class FolderData(Dataset):
 #         print("fn",self.captions[index])
         filename = self.captions[index]['file_name']
         im = Image.open(filename)
-        mins = min(im2.size[0] , im2.size[1]) 
+        mins = min(im.size[0] , im.size[1]) 
         
         if mins < 512:
             im2 = self.process_im(im)

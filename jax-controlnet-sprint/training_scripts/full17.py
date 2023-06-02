@@ -872,7 +872,7 @@ class FolderData(Dataset):
             
         data["pixel_values"] = im2
 
-        control_image = self.process_im_cond(im, safe=True)
+        control_image = self.process_im_cond(im)
 
 #         im_cond = self.process_im(im)
         data['conditioning_pixel_values'] = self.conditioning_image_transforms(control_image)
@@ -925,13 +925,13 @@ class FolderData(Dataset):
           image2 = np.concatenate([image2, image2, image2], axis=2)
           control_image = Image.fromarray(image2)
         elif r < 43:
-          control_image = processor_hed(image, safe=True,scribble=scribble)
+          control_image = self.processor_hed(image, safe=True,scribble=scribble)
 
         elif r < 66:
-          control_image = processor_pidi(image, safe=True,scribble=scribble)
+          control_image = self.processor_pidi(image, safe=True,scribble=scribble)
 
         else:
-          control_image = processor_linear(image)
+          control_image = self.processor_linear(image)
 
         from PIL import Image
 

@@ -788,7 +788,7 @@ class FolderData(Dataset):
         self.tform0 = transforms.Compose(
             [
         transforms.CenterCrop(resolution),
-        transforms.RandomHorizontalFlip(),
+#         transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),
         transforms.Normalize([0.5], [0.5]),
             ]
@@ -806,7 +806,7 @@ class FolderData(Dataset):
                 [
             transforms.Resize( resolution2, interpolation=transforms.InterpolationMode.BICUBIC),
             transforms.RandomCrop(resolution),
-            transforms.RandomHorizontalFlip(),
+#             transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
             transforms.Normalize([0.5], [0.5]),
                 ]
@@ -814,7 +814,7 @@ class FolderData(Dataset):
         elif center:
             self.tform1 = transforms.Compose(
                 [ transforms.CenterCrop(resolution),
-            transforms.RandomHorizontalFlip(),
+#             transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
             transforms.Normalize([0.5], [0.5]),
                 ]
@@ -825,7 +825,7 @@ class FolderData(Dataset):
                 [
     #         transforms.Resize( resolution2, interpolation=transforms.InterpolationMode.BILINEAR),
             transforms.RandomCrop(resolution),
-            transforms.RandomHorizontalFlip(),
+#             transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
             transforms.Normalize([0.5], [0.5]),
                 ]
@@ -843,7 +843,7 @@ class FolderData(Dataset):
         self.tformlarge = transforms.Compose(
                 [
             transforms.RandomCrop(resolution),
-            transforms.RandomHorizontalFlip(),
+#             transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
             transforms.Normalize([0.5], [0.5]),
                 ]
@@ -963,10 +963,11 @@ class FolderData(Dataset):
 
         background = result2
         background.paste(img,(0,0),img)
-        background 
+#         background 
         
         im = background.convert("RGB")
-        im.save('ok.png')
+#         im.save('ok.png')
+        print(type(im))
         return self.tformlarge(im)     
 
 def collate_fn(examples):

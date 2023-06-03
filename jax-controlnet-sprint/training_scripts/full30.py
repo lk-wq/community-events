@@ -924,20 +924,20 @@ class FolderData(Dataset):
         scribble = random.choice([True,False])
 
 #         if r < 20:
-#           image2 = np.array(image)
+        image2 = np.array(image)
 
-#           low_threshold = 100
-#           high_threshold = 200
+        low_threshold = 100
+        high_threshold = 200
 
-#           image2 = cv2.Canny(image2, low_threshold, high_threshold)
-#           image2 = image2[:, :, None]
-#           image2 = np.concatenate([image2, image2, image2], axis=2)
-#           control_image = Image.fromarray(image2)
-        if r < 50:
-          control_image = self.processor_hed(image, safe=True,scribble=scribble)
+        image2 = cv2.Canny(image2, low_threshold, high_threshold)
+        image2 = image2[:, :, None]
+        image2 = np.concatenate([image2, image2, image2], axis=2)
+        control_image = Image.fromarray(image2)
+#         if r < 50:
+#           control_image = self.processor_hed(image, safe=True,scribble=scribble)
 
-        else:
-          control_image = self.processor_pidi(image, safe=True,scribble=scribble)
+#         else:
+#           control_image = self.processor_pidi(image, safe=True,scribble=scribble)
 
 #         else:
 #           control_image = self.processor_linear(image)

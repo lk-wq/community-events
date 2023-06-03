@@ -719,7 +719,7 @@ def make_train_dataset(args, tokenizer, batch_size=None):
     return train_dataset
 
 from random import randint, randrange
-
+from PIL import Image
 import random
 from google.cloud import storage
 class FolderData(Dataset):

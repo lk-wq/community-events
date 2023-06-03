@@ -1579,20 +1579,20 @@ def main():
                             args.output_dir+'/text_encoder',params=jax.device_get(text_params)
                     )
                     vae.save_pretrained(
-                            args.output_dir+'/text_encoder',params=jax.device_get(vae_params)
+                            args.output_dir+'/vae',params=jax.device_get(vae_params)
                     )
 
                     controlnet.save_pretrained(
-                        args.output_dir,
+                        args.output_dir+'/control',
                         params=jax.device_get(controlnet_params),
                     )
 
 #                     upload_local_directory_to_gcs(args.output_dir , bucket, args.bucketdir)
-                    try:
-                        upload_local_directory_to_gcs(args.output_dir, bucket, args.bucketdir+str(global_step))
-                        print("upload SUCCESS ===============================================>")
-                    except:
-                        print("upload fail ===============================================>")
+#                     try:
+                    upload_local_directory_to_gcs(args.output_dir, bucket, args.bucketdir+str(global_step))
+                    print("upload SUCCESS ===============================================>")
+#                     except:
+#                         print("upload fail ===============================================>")
                         
 
 #           train_metric = jax_utils.unreplicate(train_metric)

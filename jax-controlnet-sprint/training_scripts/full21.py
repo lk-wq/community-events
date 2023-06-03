@@ -57,7 +57,7 @@ from diffusers.utils import check_min_version, is_wandb_available
 from jax.experimental.maps import xmap
 from jax.experimental.pjit import pjit
 from jax.sharding import Mesh
-
+import cv2
 # To prevent an error that occurs when there are abnormally large compressed data chunk in the png image
 # see more https://github.com/python-pillow/Pillow/issues/5610
 LARGE_ENOUGH_NUMBER = 100

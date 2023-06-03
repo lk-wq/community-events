@@ -50,6 +50,7 @@ from diffusers import (
     FlaxAutoencoderKL,
     FlaxControlNetModel,
     FlaxDDPMScheduler,
+    FlaxDDIMScheduler,
     FlaxStableDiffusionControlNetPipeline,
     FlaxUNet2DConditionModel,
 )

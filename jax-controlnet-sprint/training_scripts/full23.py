@@ -916,59 +916,57 @@ class FolderData(Dataset):
         r = random.choice(listk)
         scribble = random.choice([True,False])
 
-        if r < 20:
-          image2 = np.array(image)
+#         if r < 20:
+#           image2 = np.array(image)
 
-          low_threshold = 100
-          high_threshold = 200
+#           low_threshold = 100
+#           high_threshold = 200
 
-          image2 = cv2.Canny(image2, low_threshold, high_threshold)
-          image2 = image2[:, :, None]
-          image2 = np.concatenate([image2, image2, image2], axis=2)
-          control_image = Image.fromarray(image2)
-        elif r < 43:
+#           image2 = cv2.Canny(image2, low_threshold, high_threshold)
+#           image2 = image2[:, :, None]
+#           image2 = np.concatenate([image2, image2, image2], axis=2)
+#           control_image = Image.fromarray(image2)
+        if r < 50:
           control_image = self.processor_hed(image, safe=True,scribble=scribble)
 
-        elif r < 66:
+        else:
           control_image = self.processor_pidi(image, safe=True,scribble=scribble)
 
-        else:
-          control_image = self.processor_linear(image)
+#         else:
+#           control_image = self.processor_linear(image)
 
-        from PIL import Image
+#         from PIL import Image
 
-        img = control_image.convert("RGBA")
+#         img = control_image.convert("RGBA")
 
-        pixdata = img.load()
+#         pixdata = img.load()
 
-        width, height = img.size
-        for y in range(height):
-            for x in range(width):
-                if pixdata[x, y][0] < 50:# == (0, 0, 0, 255):
-                    pixdata[x, y] = (255, 255, 255, 0)
+#         width, height = img.size
+#         for y in range(height):
+#             for x in range(width):
+#                 if pixdata[x, y][0] < 50:# == (0, 0, 0, 255):
+#                     pixdata[x, y] = (255, 255, 255, 0)
 
-                else:
-                    pixdata[x, y] = (0, 0, 0, 255 ) 
+#                 else:
+#                     pixdata[x, y] = (0, 0, 0, 255 ) 
 
-        img2 = image
+#         img2 = image
 
-        scales = [16 , 32 , 64]
-        scale = random.choice(scales)
-        img2 = img2.resize((512,512))
-        imgSmall = img2.resize((scale,scale), resample=PIL.Image.BICUBIC)
+#         scales = [16 , 32 , 64]
+#         scale = random.choice(scales)
+#         img2 = img2.resize((512,512))
+#         imgSmall = img2.resize((scale,scale), resample=PIL.Image.BICUBIC)
 
-        result = imgSmall.resize(img.size, Image.NEAREST)
+#         result = imgSmall.resize(img.size, Image.NEAREST)
 
-        result2 = result.convert("RGBA")
+#         result2 = result.convert("RGBA")
 
-        background = result2
-        background.paste(img,(0,0),img)
-#         background 
+#         background = result2
+#         background.paste(img,(0,0),img)
         
-        im = background.convert("RGB")
-#         im.save('ok.png')
-        print( type(im) ) 
-        return self.tformlarge(im)     
+#         im = background.convert("RGB")
+#         print( type(im) ) 
+        return self.tformlarge(control_image)     
 
 def collate_fn(examples):
     pixel_values = torch.stack([example["pixel_values"] for example in examples])

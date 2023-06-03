@@ -311,6 +311,8 @@ def parse_args():
         default=5000,
         help=("Save a checkpoint of the training state every X updates."),
     )
+    parser.add_argument("--save_frequency", type=int, default=5120, help="How frequently to save")
+
     parser.add_argument(
         "--learning_rate",
         type=float,
@@ -404,6 +406,9 @@ def parse_args():
     parser.add_argument("--max_grad_norm", default=1.0, type=float, help="Max gradient norm.")
     parser.add_argument("--push_to_hub", action="store_true", help="Whether or not to push the model to the Hub.")
     parser.add_argument("--hub_token", type=str, default=None, help="The token to use to push to the Model Hub.")
+    parser.add_argument("--bucketname", type=str, default='buck', help="Name of bucket.")
+    parser.add_argument("--bucketdir", type=str, default='buck', help="Bucket directory.")
+
     parser.add_argument(
         "--hub_model_id",
         type=str,
@@ -1555,6 +1560,36 @@ def main():
 #                       f"{args.output_dir}/{global_step}",
 #                       params=get_params_to_save(state.params),
 #                   )
+              if jax.process_index() == 0 and global_step % args.save_frequency == 0:
+
+                    scheduler = FlaxDDIMScheduler.from_config(
+                                noise_scheduler.config, 
+                    )
+
+                    unet.save_pretrained(
+                            args.output_dir+'/unet',params=jax.device_get(unet_params)
+                    )
+
+                    scheduler.save_pretrained(args.output_dir+'/scheduler')
+                    text_encoder.save_pretrained(
+                            args.output_dir+'/text_encoder',params=jax.device_get(text_params)
+                    )
+                    vae.save_pretrained(
+                            args.output_dir+'/text_encoder',params=jax.device_get(vae_params)
+                    )
+
+                    controlnet.save_pretrained(
+                        args.output_dir,
+                        params=jax.device_get(controlnet_params),
+                    )
+
+#                     upload_local_directory_to_gcs(args.output_dir , bucket, args.bucketdir)
+                    try:
+                        upload_local_directory_to_gcs(args.output_dir, bucket, args.bucketdir+str(global_step))
+                        print("upload SUCCESS ===============================================>")
+                    except:
+                        print("upload fail ===============================================>")
+                        
 
 #           train_metric = jax_utils.unreplicate(train_metric)
           train_step_progress_bar.close()
@@ -1570,25 +1605,34 @@ def main():
 #                 jax.profiler.stop_trace()
 #         else:
 #             image_logs = None
+#     noise_scheduler, noise_scheduler_state = FlaxDDPMScheduler.from_pretrained(
+#         args.pretrained_model_name_or_path, subfolder="scheduler"
+#     )
+
+
+        scheduler = FlaxDDIMScheduler.from_config(
+                    noise_scheduler.config, 
+        )
+
+        unet.save_pretrained(
+                args.output_dir+'/unet',params=jax.device_get(unet_params)
+        )
+
+        scheduler.save_pretrained(args.output_dir+'/scheduler')
+        text_encoder.save_pretrained(
+                args.output_dir+'/text_encoder',params=jax.device_get(text_params)
+        )
+        vae.save_pretrained(
+                args.output_dir+'/text_encoder',params=jax.device_get(vae_params)
+        )
 
         controlnet.save_pretrained(
             args.output_dir,
             params=jax.device_get(controlnet_params),
         )
+    
+        upload_local_directory_to_gcs(args.output_dir , bucket, args.bucketdir)
 
-#         if args.push_to_hub:
-#             save_model_card(
-#                 repo_id,
-#                 image_logs=image_logs,
-#                 base_model=args.pretrained_model_name_or_path,
-#                 repo_folder=args.output_dir,
-#             )
-#             upload_folder(
-#                 repo_id=repo_id,
-#                 folder_path=args.output_dir,
-#                 commit_message="End of training",
-#                 ignore_patterns=["step_*", "epoch_*"],
-#             )
 
 #     if args.profile_memory:
 #         jax.profiler.save_device_memory_profile(os.path.join(args.output_dir, "memory_final.prof"))

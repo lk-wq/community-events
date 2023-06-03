@@ -844,8 +844,8 @@ class FolderData(Dataset):
                 [
             transforms.RandomCrop(resolution),
 #             transforms.RandomHorizontalFlip(),
-            transforms.ToTensor(),
-            transforms.Normalize([0.5], [0.5]),
+#             transforms.ToTensor(),
+#             transforms.Normalize([0.5], [0.5]),
                 ]
         )
 
@@ -967,7 +967,7 @@ class FolderData(Dataset):
         
         im = background.convert("RGB")
 #         im.save('ok.png')
-        print(type(im))
+        print( type(im) ) 
         return self.tformlarge(im)     
 
 def collate_fn(examples):

@@ -1512,6 +1512,9 @@ def main():
                blob = bucket.blob(remote_path)
                blob.upload_from_filename(local_file)
                del blob
+    client = storage.Client()
+    bucket = client.bucket(args.bucketname)
+    
 
     with Mesh(mesh_devices, ("dp","mp")):
       for epoch in epochs:

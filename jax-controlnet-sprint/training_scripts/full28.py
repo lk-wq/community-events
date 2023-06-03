@@ -1499,6 +1499,20 @@ def main():
 #     if args.profile_memory:
 #         jax.profiler.save_device_memory_profile(os.path.join(args.output_dir, "memory_initial.prof"))
     t00 = t0 = time.monotonic()
+    import glob
+    from google.cloud import storage
+
+    def upload_local_directory_to_gcs(local_path, bucket, gcs_path):
+        #assert os.path.isdir(local_path)
+        for local_file in glob.glob(local_path + '/**'):
+            if not os.path.isfile(local_file):
+               upload_local_directory_to_gcs(local_file, bucket, gcs_path + "/" + os.path.basename(local_file))
+            else:
+               remote_path = os.path.join(gcs_path, local_file[1 + len(local_path):])
+               blob = bucket.blob(remote_path)
+               blob.upload_from_filename(local_file)
+               del blob
+
     with Mesh(mesh_devices, ("dp","mp")):
       for epoch in epochs:
           # ======================== Training ================================

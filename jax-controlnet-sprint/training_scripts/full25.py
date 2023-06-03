@@ -42,6 +42,7 @@ from tqdm.auto import tqdm
 from transformers import CLIPTokenizer, FlaxCLIPTextModel, set_seed
 from jax.experimental import mesh_utils
 from controlnet_aux import LineartDetector, PidiNetDetector, HEDdetector
+from jax.sharding import PartitionSpec as P 
 
 import PIL
 
@@ -1243,7 +1244,9 @@ def main():
       print("fail",shape)
       return P()
 
-    from jax.experimental import PartitionSpec as P 
+#     from jax.experimental import PartitionSpec as P 
+    from jax.sharding import PartitionSpec as P 
+
     from jax.sharding import NamedSharding
 
     mesh = Mesh(mesh_devices , axis_names=('dp','mp'))

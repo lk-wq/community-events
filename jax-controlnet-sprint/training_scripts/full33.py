@@ -966,7 +966,7 @@ class FolderData(Dataset):
                         pixdata[x, y] = (255, 255, 255, 0)
 
                     else:
-                        pixdata[x, y] = (0, 0, 0, 255 ) 
+                        pixdata[x, y] = (255, 255, 255, 255 ) 
 
             img2 = image
             scales = [16 , 32 , 64]

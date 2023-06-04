@@ -476,6 +476,14 @@ def parse_args():
         ),
     )
     parser.add_argument(
+        "--color",
+        action="store_true",
+        help=(
+            "If True, will add color map to control image"
+        ),
+    )
+
+    parser.add_argument(
         "--image_column", type=str, default="image", help="The column of the dataset containing the target image."
     )
     parser.add_argument(
@@ -750,6 +758,7 @@ class FolderData(Dataset):
         drop=False,
         resize=False,
         center=False,
+        color=False,
         ) -> None:
         """Create a dataset from a folder of images.
         If you pass in a root directory it will be searched for images
@@ -772,6 +781,7 @@ class FolderData(Dataset):
 #         captions = {x["file_name"]: x["text"].strip("\n") for x in lines}
 
         import glob
+        self.color = color
         print("stuff--------------------->",root_dir+if_+'/*')
 #         self.captions = glob.glob(root_dir+if_+'/*')
         with open(if_, "r") as f:
@@ -943,35 +953,36 @@ class FolderData(Dataset):
 #           control_image = self.processor_linear(image)
 
 #         from PIL import Image
+        if self.color:
 
-#         img = control_image.convert("RGBA")
+            img = control_image.convert("RGBA")
 
-#         pixdata = img.load()
+            pixdata = img.load()
 
-#         width, height = img.size
-#         for y in range(height):
-#             for x in range(width):
-#                 if pixdata[x, y][0] < 50:# == (0, 0, 0, 255):
-#                     pixdata[x, y] = (255, 255, 255, 0)
+            width, height = img.size
+            for y in range(height):
+                for x in range(width):
+                    if pixdata[x, y][0] < 50:# == (0, 0, 0, 255):
+                        pixdata[x, y] = (255, 255, 255, 0)
 
-#                 else:
-#                     pixdata[x, y] = (0, 0, 0, 255 ) 
+                    else:
+                        pixdata[x, y] = (0, 0, 0, 255 ) 
 
-#         img2 = image
+            img2 = image
+            scales = [16 , 32 , 64]
+            scale = random.choice(scales)
+            img2 = img2.resize((512,512))
+            imgSmall = img2.resize((scale,scale), resample=PIL.Image.BICUBIC)
 
-#         scales = [16 , 32 , 64]
-#         scale = random.choice(scales)
-#         img2 = img2.resize((512,512))
-#         imgSmall = img2.resize((scale,scale), resample=PIL.Image.BICUBIC)
+            result = imgSmall.resize(img2.size, Image.NEAREST)
 
-#         result = imgSmall.resize(img.size, Image.NEAREST)
+            result2 = result.convert("RGBA")
 
-#         result2 = result.convert("RGBA")
+            background = result2
+            background.paste(img,(0,0),img)
 
-#         background = result2
-#         background.paste(img,(0,0),img)
-        
-#         im = background.convert("RGB")
+            im = background.convert("RGB")
+            return self.tformlarge(im)  
 #         print( type(im) ) 
         return self.tformlarge(control_image)     
 
@@ -1049,7 +1060,7 @@ def main():
 
     # Get the datasets: you can either provide your own training and evaluation files (see below)
     total_train_batch_size = args.train_batch_size * 1 * 1
-    train_dataset = FolderData(args.train_data_dir,args.pretrained_model_name_or_path,negative_prompt=args.negative_prompt,section0=args.section0,section1=args.section1,if_=args.img_folder,ip=args.instance_prompt,resolution=args.resolution,resolution2=args.resolution2,drop=args.drop,resize=args.resize,center=args.center_crop)
+    train_dataset = FolderData(args.train_data_dir,args.pretrained_model_name_or_path,negative_prompt=args.negative_prompt,section0=args.section0,section1=args.section1,if_=args.img_folder,ip=args.instance_prompt,resolution=args.resolution,resolution2=args.resolution2,drop=args.drop,resize=args.resize,center=args.center_crop,color=args.color)
 
 #     train_dataset = make_train_dataset(args, tokenizer, batch_size=total_train_batch_size)
     train_dataloader = torch.utils.data.DataLoader(

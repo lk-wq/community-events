@@ -1121,8 +1121,11 @@ def main():
         revision=args.revision,
         from_pt=args.from_pt,
     )
+    if cont:
+        controlnet, controlnet_params = FlaxControlNetModel.from_pretrained(args.controlnet_model_name_or_path,
+                                                                            from_flax=True, dtype=jnp.bfloat16)
 
-    if args.controlnet_model_name_or_path:
+    elif args.controlnet_model_name_or_path:
         logger.info("Loading existing controlnet weights")
         controlnet, controlnet_params = FlaxControlNetModel.from_pretrained(
             args.controlnet_model_name_or_path,

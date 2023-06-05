@@ -1075,6 +1075,7 @@ def main():
 
     # Get the datasets: you can either provide your own training and evaluation files (see below)
     total_train_batch_size = args.train_batch_size * 1 * 1
+    print('token dir --------------------->',args.token_dir)
     train_dataset = FolderData(args.train_data_dir,token_dir=args.token_dir,negative_prompt=args.negative_prompt,section0=args.section0,section1=args.section1,if_=args.img_folder,ip=args.instance_prompt,resolution=args.resolution,resolution2=args.resolution2,drop=args.drop,resize=args.resize,center=args.center_crop,color=args.color)
 
 #     train_dataset = make_train_dataset(args, tokenizer, batch_size=total_train_batch_size)

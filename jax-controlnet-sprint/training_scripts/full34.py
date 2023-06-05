@@ -258,6 +258,12 @@ def parse_args():
         help="Load the controlnet model from a PyTorch checkpoint.",
     )
     parser.add_argument(
+        "--cont",
+        action="store_true",
+        help="Load the controlnet model from a PyTorch checkpoint.",
+    )
+
+    parser.add_argument(
         "--tokenizer_name",
         type=str,
         default=None,
@@ -450,6 +456,15 @@ def parse_args():
             " or to a folder containing files that 🤗 Datasets can understand."
         ),
     )
+    parser.add_argument(
+        "--token_dir",
+        type=str,
+        default=None,
+        help=(
+            "tokenizer dir"
+        ),
+    )
+
     parser.add_argument("--streaming", action="store_true", help="To stream a large dataset from Hub.")
     parser.add_argument(
         "--dataset_config_name",
@@ -1060,7 +1075,7 @@ def main():
 
     # Get the datasets: you can either provide your own training and evaluation files (see below)
     total_train_batch_size = args.train_batch_size * 1 * 1
-    train_dataset = FolderData(args.train_data_dir,args.pretrained_model_name_or_path,negative_prompt=args.negative_prompt,section0=args.section0,section1=args.section1,if_=args.img_folder,ip=args.instance_prompt,resolution=args.resolution,resolution2=args.resolution2,drop=args.drop,resize=args.resize,center=args.center_crop,color=args.color)
+    train_dataset = FolderData(args.train_data_dir,token_dir=args.token_dir,negative_prompt=args.negative_prompt,section0=args.section0,section1=args.section1,if_=args.img_folder,ip=args.instance_prompt,resolution=args.resolution,resolution2=args.resolution2,drop=args.drop,resize=args.resize,center=args.center_crop,color=args.color)
 
 #     train_dataset = make_train_dataset(args, tokenizer, batch_size=total_train_batch_size)
     train_dataloader = torch.utils.data.DataLoader(

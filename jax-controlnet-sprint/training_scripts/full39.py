@@ -1080,7 +1080,7 @@ def main():
 
 #     train_dataset = make_train_dataset(args, tokenizer, batch_size=total_train_batch_size)
     train_dataloader = torch.utils.data.DataLoader(
-        train_dataset, shuffle=True, collate_fn=collate_fn, batch_size=total_train_batch_size, drop_last=True
+        train_dataset, shuffle=False, collate_fn=collate_fn, batch_size=total_train_batch_size, drop_last=True
     )
 
 #     train_dataloader = torch.utils.data.DataLoader(

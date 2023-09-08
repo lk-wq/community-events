@@ -38,6 +38,7 @@ from huggingface_hub import create_repo, upload_folder
 from PIL import Image, PngImagePlugin
 from torch.utils.data import IterableDataset
 from torchvision import transforms
+from torchvision.transforms import functional as F
 from tqdm.auto import tqdm
 from transformers import CLIPTokenizer, FlaxCLIPTextModel, set_seed
 from jax.experimental import mesh_utils
@@ -529,110 +530,6 @@ class FolderData(Dataset):
         self.root_dir = root_dir
         self.default_caption = default_caption
         self.return_paths = return_paths
-#         l = []
-#         for i in range(9):
-#           with open(root_dir+args.img_folder, "r") as f:
-#               l = f.readlines()
-#               lines = [json.loads(x) for x in lines]
-#               l.extend(lines)
-            # captions = {x["file_name"]: x["text"].strip("\n") for x in lines}
-        # rs = restart_from % len(lines)
-#         with open(root_dir+if_, "r") as f:
-#           l = f.readlines()
-#           lines = [json.loads(x) for x in l]
-#         captions = {x["file_name"]: x["text"].strip("\n") for x in lines}
-
-        import glob
-        self.color = color
-        print("stuff--------------------->",root_dir+if_+'/*')
-#         self.captions = glob.glob(root_dir+if_+'/*')
-        with open(if_, "r") as f:
-          l = f.readlines()
-          self.captions = [json.loads(x) for x in l]
-
-        import random
-#         random.shuffle(l)
-#         self.captions = lines  #[rs:] + lines[:rs]
-
-        # Only used if there is no caption file
-        # self.paths = []
-        # if isinstance(image_transforms, ListConfig):
-        #     image_transforms = [instantiate_from_config(tt) for tt in image_transforms]
-        image_transforms.extend([transforms.ToTensor(),
-                                 transforms.Lambda(lambda x: rearrange(x * 2. - 1., 'c h w -> h w c'))])
-        image_transforms = transforms.Compose(image_transforms)
-        self.resolution = resolution
-        print("resolution ", resolution)
-#         resolution = 768
-        self.tform0 = transforms.Compose(
-            [
-        transforms.CenterCrop(resolution),
-#         transforms.RandomHorizontalFlip(),
-        transforms.ToTensor(),
-        transforms.Normalize([0.5], [0.5]),
-            ]
-        )
-        self.conditioning_image_transforms = transforms.Compose(
-        [
-            transforms.Resize(resolution, interpolation=transforms.InterpolationMode.BICUBIC),
-            transforms.CenterCrop(resolution),
-            transforms.ToTensor(),
-        ]
-        )
-
-        if resize:
-            self.tform1 = transforms.Compose(
-                [
-            transforms.Resize( resolution2, interpolation=transforms.InterpolationMode.BICUBIC),
-            transforms.RandomCrop(resolution),
-#             transforms.RandomHorizontalFlip(),
-            transforms.ToTensor(),
-            transforms.Normalize([0.5], [0.5]),
-                ]
-            )
-        elif center:
-            self.tform1 = transforms.Compose(
-                [ transforms.CenterCrop(resolution),
-#             transforms.RandomHorizontalFlip(),
-            transforms.ToTensor(),
-            transforms.Normalize([0.5], [0.5]),
-                ]
-            )
-
-        else:
-            self.tform1 = transforms.Compose(
-                [
-    #         transforms.Resize( resolution2, interpolation=transforms.InterpolationMode.BILINEAR),
-            transforms.RandomCrop(resolution),
-#             transforms.RandomHorizontalFlip(),
-            transforms.ToTensor(),
-            transforms.Normalize([0.5], [0.5]),
-                ]
-            )
-
-        self.tokenizer = CLIPTokenizer.from_pretrained(token_dir, subfolder="tokenizer")
-        self.negative_prompt = negative_prompt
-        self.instance_prompt = ip
-        self.drop = drop
-#         self.processor = PidiNetDetector.from_pretrained('lllyasviel/Annotators')
-        self.processor_hed = HEDdetector.from_pretrained('lllyasviel/Annotators')
-        self.processor_pidi = PidiNetDetector.from_pretrained('lllyasviel/Annotators')
-        self.processor_linear = LineartDetector.from_pretrained('lllyasviel/Annotators')
-
-        self.tformlarge = transforms.Compose(
-                [
-            transforms.RandomCrop(resolution),
-#             transforms.RandomHorizontalFlip(),
-#             transforms.ToTensor(),
-#             transforms.Normalize([0.5], [0.5]),
-                ]
-        )
-
-    def __len__(self):
-        return len(self.captions)
-
-    def __getitem__(self, index):
-        data = {}
 #         print("fn",self.captions[index])
         filename = self.captions[index]['file_name']
         im = Image.open(filename)
@@ -746,4 +643,4 @@ class FolderData(Dataset):
             im = background.convert("RGB")
             return self.tformlarge(im)  
 #         print( type(im) ) 
-        return self.tformlarge(control_image)     
+        return self.tformlarge(control_image)

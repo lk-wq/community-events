@@ -32,6 +32,8 @@ import cv2
 from PIL import Image
 import random
 from google.cloud import storage
+from torchvision.transforms import RandomHorizontalFlip
+
 class FolderData(Dataset):
     def __init__(self,
         root_dir,
@@ -144,7 +146,6 @@ class FolderData(Dataset):
 
     def __getitem__(self, index):
         data = {}
-#         print("fn",self.captions[index])
         filename = self.captions[index]['file_name']
         im = Image.open(filename)
         mins = min(im.size[0] , im.size[1]) 
@@ -152,7 +153,6 @@ class FolderData(Dataset):
         if mins <= 512:
             im2 = self.process_im(im)
         else:
-#             im = Image.open(filename)
             width, height = im.size
             left = randrange(0,width - self.resolution)
             top = randrange(0,height - self.resolution)
@@ -162,11 +162,18 @@ class FolderData(Dataset):
 
             im2 = self.process_im(im)
             
-        data["pixel_values"] = im2
-
         control_image = self.process_im_cond(im)
 
-#         im_cond = self.process_im(im)
+        # Generate a random boolean value
+        flip = random.random() > 0.5
+
+        # Apply random horizontal flip with 0.5 probability
+        if flip:
+            flip_transform = RandomHorizontalFlip(p=1.0)
+            im2 = flip_transform(im2)
+            control_image = flip_transform(control_image)
+
+        data["pixel_values"] = im2
         data['conditioning_pixel_values'] = self.conditioning_image_transforms(control_image)
 
         caption = self.instance_prompt + self.captions[index]['text']
@@ -241,4 +248,4 @@ class FolderData(Dataset):
             im = background.convert("RGB")
             return self.tformlarge(im)  
 #         print( type(im) ) 
-        return self.tformlarge(control_image)     
+        return self.tformlarge(control_image)

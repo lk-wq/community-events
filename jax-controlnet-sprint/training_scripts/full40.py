@@ -647,8 +647,6 @@ class FolderData(Dataset):
 
     def __getitem__(self, index):
         data = {}
-        # ... existing code ...
-
         # Introduce a flip variable that randomly decides whether to flip the image or not
         flip = random.choice([True, False])
 
@@ -657,7 +655,12 @@ class FolderData(Dataset):
         if mins <= 512:
             im2 = self.process_im(im)
         else:
-            # ... existing code ...
+            width, height = im.size
+            left = randrange(0,width - self.resolution)
+            top = randrange(0,height - self.resolution)
+            right = left + self.resolution
+            bottom = top + self.resolution
+            im = im.crop((left, top, right, bottom))
             im2 = self.process_im(im)
 
         # Apply horizontal flip if flip is True
@@ -666,6 +669,23 @@ class FolderData(Dataset):
 
         data["pixel_values"] = im2
 
-        # ... existing code ...
+        # Process the conditioning image
+        control_image = self.process_im_cond(im)
+
+        # Apply horizontal flip if flip is True
+        if flip:
+            control_image = F.hflip(control_image)
+
+        data['conditioning_pixel_values'] = self.conditioning_image_transforms(control_image)
+
+        caption = self.instance_prompt + self.captions[index]['text']
+        list_ = [i for i in range(100)] 
+        choice = random.choice(list_)
+
+        ids = self.tokenize_captions(caption)
+        input_ids = self.tokenizer.pad(
+            {"input_ids": ids}, padding="max_length", max_length=self.tokenizer.model_max_length, return_tensors="pt"
+        ).input_ids
+        data['input_ids'] = input_ids
 
         return data

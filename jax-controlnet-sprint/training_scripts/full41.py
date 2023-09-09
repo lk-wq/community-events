@@ -165,8 +165,6 @@ class FolderData(Dataset):
         data["pixel_values"] = im2
 
         control_image = self.process_im_cond(im)
-
-#         im_cond = self.process_im(im)
         data['conditioning_pixel_values'] = self.conditioning_image_transforms(control_image)
 
         caption = self.instance_prompt + self.captions[index]['text']
@@ -241,4 +239,4 @@ class FolderData(Dataset):
             im = background.convert("RGB")
             return self.tformlarge(im)  
 #         print( type(im) ) 
-        return self.tformlarge(control_image)     
+        return self.tformlarge(control_image)

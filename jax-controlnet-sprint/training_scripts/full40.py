@@ -644,3 +644,28 @@ class FolderData(Dataset):
             return self.tformlarge(im)  
 #         print( type(im) ) 
         return self.tformlarge(control_image)
+
+    def __getitem__(self, index):
+        data = {}
+        # ... existing code ...
+
+        # Introduce a flip variable that randomly decides whether to flip the image or not
+        flip = random.choice([True, False])
+
+        # Process the image
+        im = Image.open(filename)
+        if mins <= 512:
+            im2 = self.process_im(im)
+        else:
+            # ... existing code ...
+            im2 = self.process_im(im)
+
+        # Apply horizontal flip if flip is True
+        if flip:
+            im2 = F.hflip(im2)
+
+        data["pixel_values"] = im2
+
+        # ... existing code ...
+
+        return data
